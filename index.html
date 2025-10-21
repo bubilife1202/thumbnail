@@ -30,6 +30,46 @@
                 </div>
 
                 <div class="section">
+                    <h2>템플릿 선택</h2>
+                    <div class="template-grid">
+                        <div class="template-card" data-template="blank">
+                            <div class="template-preview blank"></div>
+                            <span>빈 캔버스</span>
+                        </div>
+                        <div class="template-card" data-template="modern">
+                            <div class="template-preview modern"></div>
+                            <span>모던</span>
+                        </div>
+                        <div class="template-card" data-template="vibrant">
+                            <div class="template-preview vibrant"></div>
+                            <span>비브런트</span>
+                        </div>
+                        <div class="template-card" data-template="minimal">
+                            <div class="template-preview minimal"></div>
+                            <span>미니멀</span>
+                        </div>
+                        <div class="template-card" data-template="dark">
+                            <div class="template-preview dark"></div>
+                            <span>다크</span>
+                        </div>
+                        <div class="template-card" data-template="sunset">
+                            <div class="template-preview sunset"></div>
+                            <span>선셋</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>기존 이미지 사용</h2>
+                    <div class="form-group">
+                        <label>베이스 이미지 업로드:</label>
+                        <input type="file" id="baseImage" accept="image/*">
+                        <small>기존 썸네일이나 사진 위에 작업하려면 이미지를 업로드하세요</small>
+                    </div>
+                    <button class="clear-btn" id="clearBaseImage">이미지 제거</button>
+                </div>
+
+                <div class="section">
                     <h2>배경 설정</h2>
                     <div class="form-group">
                         <label>배경 타입:</label>
@@ -75,9 +115,26 @@
                 <div class="section">
                     <h2>추가 요소</h2>
                     <div class="form-group">
-                        <label>로고/이미지 추가:</label>
-                        <input type="file" id="logoImage" accept="image/*">
+                        <label>오버레이 이미지 추가:</label>
+                        <input type="file" id="overlayImage" accept="image/*" multiple>
+                        <small>여러 이미지를 선택할 수 있습니다 (로고, 아이콘 등)</small>
                     </div>
+                    <div class="form-group">
+                        <label>이미지 크기:</label>
+                        <input type="range" id="overlaySize" min="50" max="500" value="150">
+                        <span id="overlaySizeValue">150px</span>
+                    </div>
+                    <div class="form-group">
+                        <label>이미지 위치:</label>
+                        <select id="overlayPosition">
+                            <option value="top-right">오른쪽 상단</option>
+                            <option value="top-left">왼쪽 상단</option>
+                            <option value="bottom-right">오른쪽 하단</option>
+                            <option value="bottom-left">왼쪽 하단</option>
+                            <option value="center">중앙</option>
+                        </select>
+                    </div>
+                    <button class="clear-btn" id="clearOverlay">오버레이 제거</button>
                     <div class="form-group">
                         <label>
                             <input type="checkbox" id="addBorder">
