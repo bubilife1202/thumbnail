@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>썸네일 생성기 - 인스타그램, 유튜브, 틱톡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 썸네일 생성기</h1>
+            <p>인스타그램, 유튜브, 쇼츠, 틱톡 썸네일을 쉽게 만들어보세요</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="section">
+                    <h2>플랫폼 선택</h2>
+                    <div class="platform-buttons">
+                        <button class="platform-btn active" data-platform="youtube">유튜브</button>
+                        <button class="platform-btn" data-platform="youtube-shorts">유튜브 쇼츠</button>
+                        <button class="platform-btn" data-platform="instagram-post">인스타그램 포스트</button>
+                        <button class="platform-btn" data-platform="instagram-story">인스타그램 스토리</button>
+                        <button class="platform-btn" data-platform="tiktok">틱톡</button>
+                    </div>
+                    <div class="size-info">
+                        <span id="currentSize">1280 x 720 px</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>배경 설정</h2>
+                    <div class="form-group">
+                        <label>배경 타입:</label>
+                        <select id="bgType">
+                            <option value="color">단색</option>
+                            <option value="gradient">그라데이션</option>
+                            <option value="image">이미지</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="colorControls">
+                        <label>배경 색상 1:</label>
+                        <input type="color" id="bgColor1" value="#6366f1">
+                        <label id="color2Label" style="display: none;">배경 색상 2:</label>
+                        <input type="color" id="bgColor2" value="#8b5cf6" style="display: none;">
+                    </div>
+                    <div class="form-group" id="imageControls" style="display: none;">
+                        <label>배경 이미지:</label>
+                        <input type="file" id="bgImage" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>텍스트 추가</h2>
+                    <div class="form-group">
+                        <label>메인 텍스트:</label>
+                        <input type="text" id="mainText" placeholder="메인 제목을 입력하세요" value="나만의 썸네일">
+                    </div>
+                    <div class="form-group">
+                        <label>서브 텍스트:</label>
+                        <input type="text" id="subText" placeholder="부제목을 입력하세요" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>텍스트 색상:</label>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label>폰트 크기:</label>
+                        <input type="range" id="fontSize" min="20" max="150" value="80">
+                        <span id="fontSizeValue">80px</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>추가 요소</h2>
+                    <div class="form-group">
+                        <label>로고/이미지 추가:</label>
+                        <input type="file" id="logoImage" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="addBorder">
+                            테두리 추가
+                        </label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <button class="download-btn" id="downloadBtn">📥 다운로드</button>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="canvas-container">
+                    <canvas id="thumbnailCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
