@@ -1123,6 +1123,8 @@ class ThumbnailMaker {
     }
 
     drawTextLayer(layer) {
+        this.ctx.save();
+
         const x = layer.x * this.canvas.width;
         const y = layer.y * this.canvas.height;
 
@@ -1136,13 +1138,13 @@ class ThumbnailMaker {
             const width = metrics.width + 40;
             const height = layer.fontSize + 20;
 
-            this.ctx.fillStyle = layer.bgColor;
             this.ctx.globalAlpha = layer.bgOpacity;
+            this.ctx.fillStyle = layer.bgColor;
             this.ctx.fillRect(x - width / 2, y - height / 2, width, height);
             this.ctx.globalAlpha = 1;
         }
 
-        // 그림자
+        // 그림자 설정
         if (layer.shadowBlur > 0) {
             this.ctx.shadowColor = layer.shadowColor;
             this.ctx.shadowBlur = layer.shadowBlur;
@@ -1155,6 +1157,7 @@ class ThumbnailMaker {
             this.ctx.strokeStyle = layer.strokeColor;
             this.ctx.lineWidth = layer.strokeWidth;
             this.ctx.lineJoin = 'round';
+            this.ctx.miterLimit = 2;
             this.ctx.strokeText(layer.content, x, y);
         }
 
@@ -1162,11 +1165,7 @@ class ThumbnailMaker {
         this.ctx.fillStyle = layer.color;
         this.ctx.fillText(layer.content, x, y);
 
-        // 그림자 리셋
-        this.ctx.shadowColor = 'transparent';
-        this.ctx.shadowBlur = 0;
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 0;
+        this.ctx.restore();
     }
 
     drawImageLayer(layer) {
@@ -1188,6 +1187,8 @@ class ThumbnailMaker {
     }
 
     drawEmojiLayer(layer) {
+        this.ctx.save();
+
         const x = layer.x * this.canvas.width;
         const y = layer.y * this.canvas.height;
 
@@ -1195,6 +1196,8 @@ class ThumbnailMaker {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(layer.emoji, x, y);
+
+        this.ctx.restore();
     }
 
     drawShapeLayer(layer) {
