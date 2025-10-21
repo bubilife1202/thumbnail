@@ -1,0 +1,19 @@
+{
+  "name": "thumbnail-generator",
+  "version": "1.0.0",
+  "description": "썸네일 생성기 - 인스타그램, 유튜브, 틱톡",
+  "main": "index.html",
+  "scripts": {
+    "deploy": "netlify deploy --prod",
+    "deploy:draft": "netlify deploy"
+  },
+  "keywords": [
+    "thumbnail",
+    "generator",
+    "instagram",
+    "youtube",
+    "tiktok"
+  ],
+  "author": "",
+  "license": "MIT"
+}
