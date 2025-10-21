@@ -1,3 +1,9 @@
+/* ========================================
+ * 프로 썸네일 메이커 - 스타일시트
+ * Made with ❤️ by Reelscode
+ * https://reelscode.com
+ * ======================================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -689,4 +695,30 @@ body {
     .platform-selector {
         flex-wrap: wrap;
     }
+}
+
+/* Footer */
+.footer {
+    background: #1a1a1a;
+    border-top: 1px solid #333;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+}
+
+.footer p {
+    margin: 0;
+}
+
+.footer a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.footer a:hover {
+    color: #818cf8;
+    text-decoration: underline;
 }

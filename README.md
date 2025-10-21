@@ -2,6 +2,8 @@
 
 유튜브, 인스타그램, 틱톡, 쇼츠를 위한 전문가급 썸네일 생성 도구
 
+> Made with ❤️ by [Reelscode](https://reelscode.com)
+
 ## ✨ 주요 기능
 
 ### 🎯 플랫폼 지원
@@ -216,6 +218,10 @@ MIT License
 ## 🤝 기여
 
 이슈 및 풀 리퀘스트 환영합니다!
+
+## 👨‍💻 제작자
+
+**Reelscode** - [https://reelscode.com](https://reelscode.com)
 
 ---
 
