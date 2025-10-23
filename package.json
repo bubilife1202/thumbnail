@@ -1,6 +1,6 @@
 {
   "name": "thumbnail-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "썸네일 생성기 - 인스타그램, 유튜브, 틱톡",
   "main": "index.html",
   "scripts": {
@@ -14,6 +14,6 @@
     "youtube",
     "tiktok"
   ],
-  "author": "",
+  "author": "Reelscode",
   "license": "MIT"
 }

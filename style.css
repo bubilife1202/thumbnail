@@ -723,3 +723,8 @@ body {
     color: #818cf8;
     text-decoration: underline;
 }
+
+.footer .version {
+    color: #666;
+    font-size: 12px;
+}

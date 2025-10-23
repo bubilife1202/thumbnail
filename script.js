@@ -1,8 +1,16 @@
 // ========================================
 // 프로 썸네일 메이커 - 메인 스크립트
+// Version: 1.1.0
 // Made with ❤️ by Reelscode
 // https://reelscode.com
 // ========================================
+
+const APP_VERSION = '1.1.0';
+
+// 버전 정보 출력
+console.log(`%c🎨 프로 썸네일 메이커 v${APP_VERSION}`, 'color: #6366f1; font-size: 16px; font-weight: bold;');
+console.log('%cMade with ❤️ by Reelscode', 'color: #999; font-size: 12px;');
+console.log('%chttps://reelscode.com', 'color: #6366f1; font-size: 12px;');
 
 // 플랫폼 크기 정의
 const PLATFORMS = {
