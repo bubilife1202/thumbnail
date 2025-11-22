@@ -130,7 +130,7 @@ function App() {
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Toolbar */}
-        <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} />
+        <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} currentCanvasSize={currentCanvasSize} />
 
         {/* Canvas Area */}
         <CanvasEditor

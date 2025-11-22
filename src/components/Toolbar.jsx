@@ -3,7 +3,7 @@ import { Type, Image as ImageIcon, Square, Circle, Palette, Upload, Layers } fro
 import { Textbox, Rect, Circle as FabricCircle, Triangle, FabricImage } from 'fabric'
 import TemplateGallery from './TemplateGallery'
 
-const Toolbar = ({ canvas, onLoadTemplate }) => {
+const Toolbar = ({ canvas, onLoadTemplate, currentCanvasSize }) => {
   const [activeTab, setActiveTab] = useState('templates')
 
   const handleTemplateLoad = (template) => {
@@ -237,7 +237,7 @@ const Toolbar = ({ canvas, onLoadTemplate }) => {
       <div className="flex-1 overflow-y-auto">
         {/* Templates Tab */}
         {activeTab === 'templates' && (
-          <TemplateGallery onLoadTemplate={handleTemplateLoad} />
+          <TemplateGallery onLoadTemplate={handleTemplateLoad} currentCanvasSize={currentCanvasSize} />
         )}
 
         {/* Text Tab */}

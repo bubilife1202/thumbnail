@@ -1,7 +1,7 @@
-import { getAllTemplates } from '../data/templates'
+import { getTemplatesBySize } from '../data/templates'
 
-const TemplateGallery = ({ onLoadTemplate }) => {
-  const templates = getAllTemplates()
+const TemplateGallery = ({ onLoadTemplate, currentCanvasSize }) => {
+  const templates = getTemplatesBySize(currentCanvasSize)
 
   return (
     <div className="p-4">
