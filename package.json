@@ -1,19 +1,28 @@
 {
-  "name": "thumbnail-generator",
-  "version": "1.1.0",
-  "description": "썸네일 생성기 - 인스타그램, 유튜브, 틱톡",
-  "main": "index.html",
+  "name": "pro-thumbnail-editor",
+  "version": "2.0.0",
+  "type": "module",
   "scripts": {
-    "deploy": "netlify deploy --prod",
-    "deploy:draft": "netlify deploy"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "keywords": [
-    "thumbnail",
-    "generator",
-    "instagram",
-    "youtube",
-    "tiktok"
-  ],
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "fabric": "^6.0.2",
+    "lucide-react": "^0.462.0",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.3"
+  },
   "author": "Reelscode",
   "license": "MIT"
 }
