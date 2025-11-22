@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
 import CanvasEditor from './components/CanvasEditor'
 import PropertyPanel from './components/PropertyPanel'
+import { templates } from './data/templates'
 
 function App() {
   const [canvas, setCanvas] = useState(null)
   const [selectedObject, setSelectedObject] = useState(null)
   const [projectName, setProjectName] = useState('Untitled Thumbnail')
+  const [hasLoadedInitialTemplate, setHasLoadedInitialTemplate] = useState(false)
 
   const handleCanvasReady = (fabricCanvas) => {
     setCanvas(fabricCanvas)
@@ -23,6 +25,15 @@ function App() {
       setSelectedObject(null)
     })
   }
+
+  // Auto-load first template on startup
+  useEffect(() => {
+    if (canvas && !hasLoadedInitialTemplate && templates.length > 0) {
+      // Load the first template automatically
+      handleLoadTemplate(templates[0])
+      setHasLoadedInitialTemplate(true)
+    }
+  }, [canvas, hasLoadedInitialTemplate])
 
   const handleLoadTemplate = (template) => {
     if (!canvas) return
