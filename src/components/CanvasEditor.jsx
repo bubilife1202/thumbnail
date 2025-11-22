@@ -35,7 +35,11 @@ const CanvasEditor = ({ onCanvasReady }) => {
     }
 
     window.addEventListener('resize', handleResize)
-    handleResize()
+
+    // Initial fit with delay to ensure DOM is ready
+    setTimeout(() => {
+      fitCanvasToContainer(canvas)
+    }, 100)
 
     return () => {
       window.removeEventListener('resize', handleResize)
@@ -44,18 +48,20 @@ const CanvasEditor = ({ onCanvasReady }) => {
   }, [])
 
   const fitCanvasToContainer = (canvas) => {
-    if (!containerRef.current) return
+    if (!containerRef.current || !canvas) return
 
     const container = containerRef.current
-    const containerWidth = container.clientWidth - 40 // padding
-    const containerHeight = container.clientHeight - 100 // padding + controls
+    // Reserve space for zoom controls (120px) and canvas info (80px) and padding (80px)
+    const containerWidth = container.clientWidth - 80
+    const containerHeight = container.clientHeight - 200
 
     const scaleX = containerWidth / CANVAS_WIDTH
     const scaleY = containerHeight / CANVAS_HEIGHT
-    const scale = Math.min(scaleX, scaleY, 1) // Don't scale up beyond 100%
+    const scale = Math.min(scaleX, scaleY, 0.9) // Max 90% to leave breathing room
 
     setZoom(scale)
     canvas.setZoom(scale)
+    canvas.setViewportTransform([scale, 0, 0, scale, 0, 0])
     canvas.renderAll()
   }
 

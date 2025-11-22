@@ -52,6 +52,11 @@ function App() {
       canvas.discardActiveObject()
       setSelectedObject(null)
       canvas.renderAll()
+
+      // Trigger resize to fit canvas to screen after template load
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'))
+      }, 50)
     })
   }
 
