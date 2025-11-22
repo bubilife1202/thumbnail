@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas } from 'fabric'
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 
-const CANVAS_WIDTH = 1280
-const CANVAS_HEIGHT = 720
-
-const CanvasEditor = ({ onCanvasReady }) => {
+const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 }) => {
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
   const [fabricCanvas, setFabricCanvas] = useState(null)
@@ -16,8 +13,8 @@ const CanvasEditor = ({ onCanvasReady }) => {
 
     // Initialize Fabric canvas
     const canvas = new Canvas(canvasRef.current, {
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
+      width: canvasWidth,
+      height: canvasHeight,
       backgroundColor: '#ffffff',
       preserveObjectStacking: true,
     })
@@ -31,23 +28,23 @@ const CanvasEditor = ({ onCanvasReady }) => {
 
     // Handle window resize
     const handleResize = () => {
-      fitCanvasToContainer(canvas)
+      fitCanvasToContainer(canvas, canvasWidth, canvasHeight)
     }
 
     window.addEventListener('resize', handleResize)
 
     // Initial fit with delay to ensure DOM is ready
     setTimeout(() => {
-      fitCanvasToContainer(canvas)
+      fitCanvasToContainer(canvas, canvasWidth, canvasHeight)
     }, 100)
 
     return () => {
       window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
-  }, [])
+  }, [canvasWidth, canvasHeight, onCanvasReady])
 
-  const fitCanvasToContainer = (canvas) => {
+  const fitCanvasToContainer = (canvas, width, height) => {
     if (!containerRef.current || !canvas) return
 
     const container = containerRef.current
@@ -55,8 +52,8 @@ const CanvasEditor = ({ onCanvasReady }) => {
     const containerWidth = container.clientWidth - 80
     const containerHeight = container.clientHeight - 200
 
-    const scaleX = containerWidth / CANVAS_WIDTH
-    const scaleY = containerHeight / CANVAS_HEIGHT
+    const scaleX = containerWidth / width
+    const scaleY = containerHeight / height
     const scale = Math.min(scaleX, scaleY, 0.9) // Max 90% to leave breathing room
 
     setZoom(scale)
@@ -83,7 +80,7 @@ const CanvasEditor = ({ onCanvasReady }) => {
 
   const handleFitToScreen = () => {
     if (!fabricCanvas) return
-    fitCanvasToContainer(fabricCanvas)
+    fitCanvasToContainer(fabricCanvas, canvasWidth, canvasHeight)
   }
 
   return (
@@ -126,7 +123,7 @@ const CanvasEditor = ({ onCanvasReady }) => {
 
       {/* Canvas Info */}
       <div className="absolute top-4 left-4 bg-dark-800 rounded-lg px-3 py-2 text-xs text-gray-400 border border-dark-700">
-        {CANVAS_WIDTH} × {CANVAS_HEIGHT} px
+        {canvasWidth} × {canvasHeight} px
       </div>
     </div>
   )
