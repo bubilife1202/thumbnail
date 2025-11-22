@@ -6,6 +6,14 @@ import TemplateGallery from './TemplateGallery'
 const Toolbar = ({ canvas, onLoadTemplate }) => {
   const [activeTab, setActiveTab] = useState('templates')
 
+  const handleTemplateLoad = (template) => {
+    onLoadTemplate(template)
+    // Switch to text tab after loading template so user can see the canvas
+    setTimeout(() => {
+      setActiveTab('text')
+    }, 100)
+  }
+
   const addText = (preset = 'default') => {
     if (!canvas) return
 
@@ -229,7 +237,7 @@ const Toolbar = ({ canvas, onLoadTemplate }) => {
       <div className="flex-1 overflow-y-auto">
         {/* Templates Tab */}
         {activeTab === 'templates' && (
-          <TemplateGallery onLoadTemplate={onLoadTemplate} />
+          <TemplateGallery onLoadTemplate={handleTemplateLoad} />
         )}
 
         {/* Text Tab */}
