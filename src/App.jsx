@@ -24,6 +24,26 @@ function App() {
     })
   }
 
+  const handleLoadTemplate = (template) => {
+    if (!canvas) return
+
+    // Clear current canvas
+    canvas.clear()
+
+    // Load template data
+    canvas.loadFromJSON(template.data, () => {
+      canvas.renderAll()
+
+      // Update project name to template name
+      setProjectName(template.name)
+
+      // Clear selection
+      canvas.discardActiveObject()
+      setSelectedObject(null)
+      canvas.renderAll()
+    })
+  }
+
   return (
     <div className="flex flex-col h-screen bg-dark-950">
       {/* Header */}
@@ -36,7 +56,7 @@ function App() {
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Toolbar */}
-        <Toolbar canvas={canvas} />
+        <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} />
 
         {/* Canvas Area */}
         <CanvasEditor onCanvasReady={handleCanvasReady} />
@@ -59,7 +79,7 @@ function App() {
         >
           Reelscode
         </a>
-        {' '}| v2.0.0
+        {' '}| v2.1.0 - Template Edition
       </div>
     </div>
   )

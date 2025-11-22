@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
-import { Trash2, Copy, AlignLeft, AlignCenter, AlignRight } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Trash2, Copy, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from 'lucide-react'
 import * as fabric from 'fabric'
+import { FabricImage } from 'fabric'
 
 const PropertyPanel = ({ canvas, selectedObject }) => {
   const [properties, setProperties] = useState({})
   const [textPreset, setTextPreset] = useState('none')
+  const imageInputRef = useRef(null)
 
   useEffect(() => {
     if (selectedObject) {
@@ -15,6 +17,7 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
         opacity: selectedObject.opacity || 1,
         fontSize: selectedObject.fontSize || 20,
         fontWeight: selectedObject.fontWeight || 'normal',
+        fontFamily: selectedObject.fontFamily || 'Noto Sans KR, sans-serif',
         textAlign: selectedObject.textAlign || 'left',
         // Image filters
         brightness: selectedObject.filters?.find(f => f.type === 'Brightness')?.brightness || 0,
@@ -142,6 +145,54 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
     setProperties({ ...properties, [filterType.toLowerCase()]: value })
   }
 
+  const handleReplaceImage = () => {
+    if (!selectedObject || selectedObject.type !== 'image') return
+    imageInputRef.current?.click()
+  }
+
+  const handleImageFileChange = (e) => {
+    if (!canvas || !selectedObject || selectedObject.type !== 'image') return
+
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const imgElement = new Image()
+      imgElement.src = event.target.result
+
+      imgElement.onload = () => {
+        // Store current properties
+        const left = selectedObject.left
+        const top = selectedObject.top
+        const scaleX = selectedObject.scaleX
+        const scaleY = selectedObject.scaleY
+        const angle = selectedObject.angle
+        const filters = selectedObject.filters
+
+        // Create new image with same position and scale
+        const newImage = new FabricImage(imgElement, {
+          left,
+          top,
+          scaleX,
+          scaleY,
+          angle,
+          filters,
+        })
+
+        // Remove old image and add new one
+        canvas.remove(selectedObject)
+        canvas.add(newImage)
+        canvas.setActiveObject(newImage)
+        canvas.renderAll()
+      }
+    }
+    reader.readAsDataURL(file)
+
+    // Reset input
+    e.target.value = ''
+  }
+
   if (!selectedObject) {
     return (
       <aside className="w-80 bg-dark-900 border-l border-dark-700 p-6 overflow-y-auto">
@@ -230,6 +281,24 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
         <>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
+              폰트
+            </label>
+            <select
+              value={properties.fontFamily || 'Noto Sans KR, sans-serif'}
+              onChange={(e) => updateProperty('fontFamily', e.target.value)}
+              className="w-full bg-dark-800 border border-dark-600 text-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            >
+              <option value="Noto Sans KR, sans-serif">Noto Sans KR</option>
+              <option value="Black Han Sans, sans-serif">Black Han Sans</option>
+              <option value="Do Hyeon, sans-serif">Do Hyeon</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Courier New, monospace">Courier New</option>
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               폰트 크기
             </label>
             <input
@@ -280,6 +349,26 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
       {/* Image Filters */}
       {isImage && (
         <>
+          {/* Hidden file input */}
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageFileChange}
+            className="hidden"
+          />
+
+          {/* Replace Image Button */}
+          <div className="mb-4">
+            <button
+              onClick={handleReplaceImage}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <ImageIcon size={18} />
+              이미지 교체
+            </button>
+          </div>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               밝기
