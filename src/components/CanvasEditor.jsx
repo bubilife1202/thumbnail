@@ -42,7 +42,7 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
       window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
-  }, [onCanvasReady])
+  }, [])
 
   // Handle canvas size changes separately
   useEffect(() => {

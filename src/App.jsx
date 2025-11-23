@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
 import CanvasEditor from './components/CanvasEditor'
@@ -13,7 +13,8 @@ function App() {
   const [hasLoadedInitialTemplate, setHasLoadedInitialTemplate] = useState(false)
   const [currentCanvasSize, setCurrentCanvasSize] = useState(DEFAULT_CANVAS_SIZE)
 
-  const handleCanvasReady = (fabricCanvas) => {
+  // ✅ useCallback으로 메모이제이션하여 무한 재생성 방지
+  const handleCanvasReady = useCallback((fabricCanvas) => {
     setCanvas(fabricCanvas)
 
     // Handle object selection
@@ -26,7 +27,7 @@ function App() {
     fabricCanvas.on('selection:cleared', () => {
       setSelectedObject(null)
     })
-  }
+  }, [])
 
   // Auto-load first template on startup
   useEffect(() => {
