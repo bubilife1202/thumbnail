@@ -41,14 +41,24 @@ function App() {
     }
   }, [canvas, hasLoadedInitialTemplate, currentCanvasSize])
 
-  const handleLoadTemplate = (template) => {
+  const handleLoadTemplate = async (template) => {
     if (!canvas) return
 
     // Clear current canvas
     canvas.clear()
 
+    // Wait for fonts to load before rendering
+    await document.fonts.ready
+
     // Load template data
     canvas.loadFromJSON(template.data, () => {
+      // Ensure fonts are applied to all text objects
+      canvas.getObjects().forEach((obj) => {
+        if (obj.type === 'textbox' || obj.type === 'text' || obj.type === 'i-text') {
+          obj.set({ dirty: true })
+        }
+      })
+
       canvas.renderAll()
 
       // Update project name to template name

@@ -62,17 +62,21 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     if (!containerRef.current || !canvas) return
 
     const container = containerRef.current
-    // Reserve space for zoom controls (120px) and canvas info (80px) and padding (80px)
-    const containerWidth = container.clientWidth - 80
-    const containerHeight = container.clientHeight - 200
+    // Get container dimensions and reserve space for UI elements
+    const containerWidth = container.clientWidth
+    const containerHeight = container.clientHeight
 
-    const scaleX = containerWidth / width
-    const scaleY = containerHeight / height
-    const scale = Math.min(scaleX, scaleY, 0.9) // Max 90% to leave breathing room
+    // Calculate available space (leave 10% padding on each side)
+    const availableWidth = containerWidth * 0.8
+    const availableHeight = containerHeight * 0.8
+
+    // Calculate scale to fit canvas within available space
+    const scaleX = availableWidth / width
+    const scaleY = availableHeight / height
+    const scale = Math.min(scaleX, scaleY)
 
     setZoom(scale)
     canvas.setZoom(scale)
-    canvas.setViewportTransform([scale, 0, 0, scale, 0, 0])
     canvas.renderAll()
   }
 
