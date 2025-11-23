@@ -68,6 +68,11 @@ function App() {
       canvas.discardActiveObject()
       setSelectedObject(null)
       canvas.renderAll()
+
+      // Auto-fit canvas to screen after template load
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'))
+      }, 100)
     })
   }
 

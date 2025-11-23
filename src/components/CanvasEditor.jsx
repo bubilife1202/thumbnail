@@ -21,18 +21,25 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
     // Enable object controls
     canvas.selection = true
-
-    // Set initial zoom to 100%
-    canvas.setZoom(1)
-    setZoom(1)
     canvas.renderAll()
 
     setFabricCanvas(canvas)
     onCanvasReady(canvas)
 
-    // No auto-fit on resize - user controls zoom manually
+    // Handle window resize
+    const handleResize = () => {
+      fitCanvasToContainer(canvas, canvas.getWidth(), canvas.getHeight())
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    // Auto-fit to screen after DOM is ready
+    setTimeout(() => {
+      fitCanvasToContainer(canvas, canvasWidth, canvasHeight)
+    }, 100)
 
     return () => {
+      window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
   }, [])
@@ -45,9 +52,10 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     fabricCanvas.setWidth(canvasWidth)
     fabricCanvas.setHeight(canvasHeight)
 
-    // Keep zoom at 100% after size change
-    fabricCanvas.setZoom(zoom)
-    fabricCanvas.renderAll()
+    // Auto-fit to screen after size change
+    setTimeout(() => {
+      fitCanvasToContainer(fabricCanvas, canvasWidth, canvasHeight)
+    }, 50)
   }, [canvasWidth, canvasHeight, fabricCanvas])
 
   const fitCanvasToContainer = (canvas, width, height) => {
