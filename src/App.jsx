@@ -3,7 +3,7 @@ import Header from './components/Header'
 import Toolbar from './components/Toolbar'
 import CanvasEditor from './components/CanvasEditor'
 import PropertyPanel from './components/PropertyPanel'
-import { templates } from './data/templates'
+import { getTemplatesBySize } from './data/templates'
 import { canvasSizes, DEFAULT_CANVAS_SIZE } from './data/canvasSizes'
 
 function App() {
@@ -30,12 +30,15 @@ function App() {
 
   // Auto-load first template on startup
   useEffect(() => {
-    if (canvas && !hasLoadedInitialTemplate && templates.length > 0) {
-      // Load the first template automatically
-      handleLoadTemplate(templates[0])
-      setHasLoadedInitialTemplate(true)
+    if (canvas && !hasLoadedInitialTemplate) {
+      const currentTemplates = getTemplatesBySize(currentCanvasSize)
+      if (currentTemplates.length > 0) {
+        // Load the first template automatically
+        handleLoadTemplate(currentTemplates[0])
+        setHasLoadedInitialTemplate(true)
+      }
     }
-  }, [canvas, hasLoadedInitialTemplate])
+  }, [canvas, hasLoadedInitialTemplate, currentCanvasSize])
 
   const handleLoadTemplate = (template) => {
     if (!canvas) return
@@ -82,13 +85,7 @@ function App() {
     const scaleX = newWidth / oldWidth
     const scaleY = newHeight / oldHeight
 
-    // 캔버스 크기 변경
-    canvas.setDimensions({
-      width: newWidth,
-      height: newHeight
-    })
-
-    // 모든 오브젝트 비율에 맞게 조정
+    // 모든 오브젝트 비율에 맞게 조정 (크기 변경 전)
     const objects = canvas.getObjects()
     objects.forEach((obj) => {
       obj.set({
@@ -99,6 +96,10 @@ function App() {
       })
       obj.setCoords()
     })
+
+    // 캔버스 크기 변경 (안전한 방법)
+    canvas.setWidth(newWidth)
+    canvas.setHeight(newHeight)
 
     // 선택 해제 및 리렌더링
     canvas.discardActiveObject()

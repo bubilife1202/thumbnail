@@ -11,7 +11,7 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
   useEffect(() => {
     if (!canvasRef.current) return
 
-    // Initialize Fabric canvas
+    // Initialize Fabric canvas (only once)
     const canvas = new Canvas(canvasRef.current, {
       width: canvasWidth,
       height: canvasHeight,
@@ -28,7 +28,7 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
     // Handle window resize
     const handleResize = () => {
-      fitCanvasToContainer(canvas, canvasWidth, canvasHeight)
+      fitCanvasToContainer(canvas, canvas.getWidth(), canvas.getHeight())
     }
 
     window.addEventListener('resize', handleResize)
@@ -42,7 +42,21 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
       window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
-  }, [canvasWidth, canvasHeight, onCanvasReady])
+  }, [onCanvasReady])
+
+  // Handle canvas size changes separately
+  useEffect(() => {
+    if (!fabricCanvas) return
+
+    // Update canvas dimensions when size props change
+    fabricCanvas.setWidth(canvasWidth)
+    fabricCanvas.setHeight(canvasHeight)
+
+    // Fit to container after size change
+    setTimeout(() => {
+      fitCanvasToContainer(fabricCanvas, canvasWidth, canvasHeight)
+    }, 50)
+  }, [canvasWidth, canvasHeight, fabricCanvas])
 
   const fitCanvasToContainer = (canvas, width, height) => {
     if (!containerRef.current || !canvas) return
