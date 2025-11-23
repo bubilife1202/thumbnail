@@ -4,9 +4,9 @@ const TemplateGallery = ({ onLoadTemplate, currentCanvasSize }) => {
   const templates = getTemplatesBySize(currentCanvasSize)
 
   return (
-    <div className="p-4">
-      <h3 className="text-sm font-semibold text-gray-300 mb-4">템플릿 선택</h3>
-      <div className="grid grid-cols-1 gap-3">
+    <div className="p-4 pr-2">
+      <h3 className="text-sm font-semibold text-gray-300 mb-4 pr-2">템플릿 선택</h3>
+      <div className="grid grid-cols-1 gap-3 pr-2">
         {templates.map((template) => (
           <button
             key={template.id}

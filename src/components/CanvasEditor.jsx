@@ -21,25 +21,18 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
     // Enable object controls
     canvas.selection = true
+
+    // Set initial zoom to 100%
+    canvas.setZoom(1)
+    setZoom(1)
     canvas.renderAll()
 
     setFabricCanvas(canvas)
     onCanvasReady(canvas)
 
-    // Handle window resize
-    const handleResize = () => {
-      fitCanvasToContainer(canvas, canvas.getWidth(), canvas.getHeight())
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    // Initial fit with delay to ensure DOM is ready
-    setTimeout(() => {
-      fitCanvasToContainer(canvas, canvasWidth, canvasHeight)
-    }, 100)
+    // No auto-fit on resize - user controls zoom manually
 
     return () => {
-      window.removeEventListener('resize', handleResize)
       canvas.dispose()
     }
   }, [])
@@ -52,10 +45,9 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     fabricCanvas.setWidth(canvasWidth)
     fabricCanvas.setHeight(canvasHeight)
 
-    // Fit to container after size change
-    setTimeout(() => {
-      fitCanvasToContainer(fabricCanvas, canvasWidth, canvasHeight)
-    }, 50)
+    // Keep zoom at 100% after size change
+    fabricCanvas.setZoom(zoom)
+    fabricCanvas.renderAll()
   }, [canvasWidth, canvasHeight, fabricCanvas])
 
   const fitCanvasToContainer = (canvas, width, height) => {
@@ -104,10 +96,10 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
   return (
     <div
       ref={containerRef}
-      className="flex-1 flex flex-col items-center justify-center bg-dark-900 relative overflow-hidden"
+      className="flex-1 flex flex-col items-center justify-center bg-dark-900 relative overflow-auto"
     >
-      {/* Canvas Container */}
-      <div className="relative">
+      {/* Canvas Container - Always centered */}
+      <div className="relative flex items-center justify-center">
         <canvas ref={canvasRef} className="shadow-2xl" />
       </div>
 
