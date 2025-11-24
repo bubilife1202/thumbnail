@@ -5,7 +5,7 @@ import CanvasEditor from './components/CanvasEditor'
 import PropertyPanel from './components/PropertyPanel'
 import { getTemplatesBySize } from './data/templates'
 import { canvasSizes, DEFAULT_CANVAS_SIZE } from './data/canvasSizes'
-import TemplateShell from './components/layout/TemplateShell'
+import { smartResizeCanvas } from './utils/smartResize'
 
 function App() {
   const [canvas, setCanvas] = useState(null)
@@ -85,43 +85,18 @@ function App() {
 
     if (!newSize || !oldSize) return
 
-    // 기존 캔버스 크기
-    const oldWidth = oldSize.width
-    const oldHeight = oldSize.height
+    // Use Smart Resize Engine
+    smartResizeCanvas(canvas, oldSize.width, oldSize.height, newSize.width, newSize.height)
 
-    // 새 캔버스 크기
-    const newWidth = newSize.width
-    const newHeight = newSize.height
-
-    // 비율 계산
-    const scaleX = newWidth / oldWidth
-    const scaleY = newHeight / oldHeight
-
-    // 모든 오브젝트 비율에 맞게 조정 (크기 변경 전)
-    const objects = canvas.getObjects()
-    objects.forEach((obj) => {
-      obj.set({
-        left: obj.left * scaleX,
-        top: obj.top * scaleY,
-        scaleX: obj.scaleX * scaleX,
-        scaleY: obj.scaleY * scaleY
-      })
-      obj.setCoords()
-    })
-
-    // 캔버스 크기 변경 (안전한 방법)
-    canvas.setWidth(newWidth)
-    canvas.setHeight(newHeight)
-
-    // 선택 해제 및 리렌더링
+    // Deselect & Render
     canvas.discardActiveObject()
     setSelectedObject(null)
     canvas.renderAll()
 
-    // 상태 업데이트
+    // Update State
     setCurrentCanvasSize(newSizeId)
 
-    // 화면에 맞게 자동 조정
+    // Auto-fit to screen
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'))
     }, 50)
