@@ -129,7 +129,7 @@ function App() {
   const currentSize = canvasSizes[currentCanvasSize]
 
   return (
-    <div className="flex flex-col h-screen bg-dark-950">
+    <div className="flex flex-col h-screen bg-dark-950 text-dark-100 selection:bg-indigo-500/30">
       {/* Header */}
       <Header
         projectName={projectName}
@@ -140,16 +140,18 @@ function App() {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Left Toolbar */}
         <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} currentCanvasSize={currentCanvasSize} />
 
-        {/* Canvas Area */}
-        <CanvasEditor
-          onCanvasReady={handleCanvasReady}
-          canvasWidth={currentSize.width}
-          canvasHeight={currentSize.height}
-        />
+        {/* Canvas Area with specialized background for contrast */}
+        <main className="flex-1 relative bg-black/40 shadow-inner flex flex-col min-w-0">
+          <CanvasEditor
+            onCanvasReady={handleCanvasReady}
+            canvasWidth={currentSize.width}
+            canvasHeight={currentSize.height}
+          />
+        </main>
 
         {/* Right Property Panel */}
         <PropertyPanel
@@ -159,18 +161,26 @@ function App() {
       </div>
 
       {/* Footer */}
-      <div className="bg-dark-900 border-t border-dark-700 px-4 py-2 text-center text-xs text-gray-500">
-        Made with ❤️ by{' '}
-        <a
-          href="https://reelscode.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Reelscode
-        </a>
-        {' '}| v2.1.0 - Template Edition
-      </div>
+      <footer className="bg-dark-950 border-t border-dark-800/50 px-4 py-1.5 flex justify-between items-center text-[10px] text-dark-500 select-none">
+        <div className="flex items-center gap-2">
+           <div className="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
+           <span>Ready</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          Made with ❤️ by{' '}
+          <a
+            href="https://reelscode.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
+          >
+            Reelscode
+          </a>
+          <span className="text-dark-700 mx-1">|</span>
+          <span>v2.2.0 Professional</span>
+        </div>
+      </footer>
     </div>
   )
 }

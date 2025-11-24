@@ -7,7 +7,6 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
-  // 드롭다운 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -28,7 +27,6 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
 
   const handleSaveJSON = () => {
     if (!canvas) return
-
     const json = canvas.toJSON()
     const dataStr = JSON.stringify(json, null, 2)
     const dataBlob = new Blob([dataStr], { type: 'application/json' })
@@ -42,22 +40,12 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
 
   const handleDownloadPNG = () => {
     if (!canvas) return
-
-    // Temporarily set zoom to 1 for export
     const currentZoom = canvas.getZoom()
     canvas.setZoom(1)
     canvas.renderAll()
-
-    const dataURL = canvas.toDataURL({
-      format: 'png',
-      quality: 1,
-      multiplier: 1,
-    })
-
-    // Restore zoom
+    const dataURL = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 1 })
     canvas.setZoom(currentZoom)
     canvas.renderAll()
-
     const link = document.createElement('a')
     link.href = dataURL
     link.download = `${projectName}.png`
@@ -66,20 +54,12 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
 
   const handleDownloadJPG = () => {
     if (!canvas) return
-
     const currentZoom = canvas.getZoom()
     canvas.setZoom(1)
     canvas.renderAll()
-
-    const dataURL = canvas.toDataURL({
-      format: 'jpeg',
-      quality: 0.95,
-      multiplier: 1,
-    })
-
+    const dataURL = canvas.toDataURL({ format: 'jpeg', quality: 0.95, multiplier: 1 })
     canvas.setZoom(currentZoom)
     canvas.renderAll()
-
     const link = document.createElement('a')
     link.href = dataURL
     link.download = `${projectName}.jpg`
@@ -87,59 +67,62 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
   }
 
   return (
-    <header className="bg-dark-900 border-b border-dark-700 px-6 py-3 flex items-center justify-between">
-      {/* Logo & Project Name */}
+    <header className="bg-dark-900 border-b border-dark-700/50 h-14 flex items-center justify-between px-4 select-none">
+      {/* Left: Logo & Project Name */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">PT</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+            <span className="text-white font-bold text-sm tracking-tight">PT</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-100">Pro Thumbnail Editor</h1>
+          <span className="text-sm font-semibold text-dark-300 hidden sm:block">
+            Pro Thumbnail
+          </span>
         </div>
 
-        <div className="h-6 w-px bg-dark-700" />
+        <div className="h-4 w-px bg-dark-700" />
 
-        {/* Project Name */}
-        {isEditing ? (
-          <input
-            type="text"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            onBlur={() => setIsEditing(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') setIsEditing(false)
-            }}
-            className="bg-dark-800 text-gray-200 px-3 py-1 rounded border border-dark-600 focus:border-indigo-500 outline-none"
-            autoFocus
-          />
-        ) : (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-gray-200 transition-colors px-2 py-1 rounded hover:bg-dark-800"
-          >
-            {projectName}
-          </button>
-        )}
+        {/* Project Name Input */}
+        <div className="relative group">
+          {isEditing ? (
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              onBlur={() => setIsEditing(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') setIsEditing(false)
+              }}
+              className="bg-dark-800 text-dark-100 px-3 py-1.5 rounded-md text-sm font-medium border border-dark-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none w-64 transition-all"
+              autoFocus
+            />
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-dark-100 font-medium px-3 py-1.5 rounded-md hover:bg-dark-800 transition-colors text-sm text-left w-64 truncate"
+            >
+              {projectName}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Canvas Size Selector */}
+      {/* Center: Canvas Size Selector */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsSizeDropdownOpen(!isSizeDropdownOpen)}
-          className="flex items-center gap-3 px-4 py-2 bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-lg transition-colors"
+          className="flex items-center gap-3 px-3 py-1.5 hover:bg-dark-800 rounded-md transition-colors group"
         >
-          <span className="text-2xl">{currentSize.icon}</span>
-          <div className="text-left">
-            <div className="text-sm font-semibold text-gray-200">
-              {currentSize.platform} - {currentSize.name}
-            </div>
-            <div className="text-xs text-gray-500">
-              {currentSize.width} × {currentSize.height} px
-            </div>
+          <div className="flex flex-col items-end">
+            <span className="text-xs font-medium text-dark-200 group-hover:text-dark-100 transition-colors">
+              {currentSize.platform} · {currentSize.name}
+            </span>
+            <span className="text-[10px] text-dark-500 group-hover:text-dark-400 font-mono">
+              {currentSize.width} × {currentSize.height}
+            </span>
           </div>
           <ChevronDown
-            size={16}
-            className={`text-gray-400 transition-transform ${
+            size={14}
+            className={`text-dark-500 transition-transform duration-200 ${
               isSizeDropdownOpen ? 'rotate-180' : ''
             }`}
           />
@@ -147,106 +130,98 @@ const Header = ({ projectName, setProjectName, canvas, currentCanvasSize, onCanv
 
         {/* Dropdown Menu */}
         {isSizeDropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 w-80 bg-dark-800 border border-dark-600 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
-            {/* 인기 플랫폼 */}
-            <div className="p-2">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 py-1">
-                인기 플랫폼
-              </div>
-              {Object.values(canvasSizes)
-                .filter((size) => size.popular)
-                .map((size) => (
-                  <button
-                    key={size.id}
-                    onClick={() => {
-                      onCanvasSizeChange(size.id)
-                      setIsSizeDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                      currentCanvasSize === size.id
-                        ? 'bg-indigo-600 text-white'
-                        : 'hover:bg-dark-700 text-gray-300'
-                    }`}
-                  >
-                    <span className="text-xl">{size.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-medium">
-                        {size.platform} - {size.name}
-                      </div>
-                      <div className="text-xs opacity-75">
-                        {size.width} × {size.height} px ({size.aspectRatio})
-                      </div>
-                    </div>
-                  </button>
-                ))}
+          <div className="absolute top-full right-0 mt-2 w-72 bg-dark-900 border border-dark-700 rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto overflow-x-hidden backdrop-blur-sm bg-opacity-95 p-1.5">
+            <div className="text-[10px] font-bold text-dark-500 uppercase tracking-wider px-3 py-2">
+              Popular
             </div>
-
-            {/* 구분선 */}
-            <div className="border-t border-dark-700 my-1"></div>
-
-            {/* 기타 플랫폼 */}
-            <div className="p-2">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 py-1">
-                기타 플랫폼
-              </div>
-              {Object.values(canvasSizes)
-                .filter((size) => !size.popular)
-                .map((size) => (
-                  <button
-                    key={size.id}
-                    onClick={() => {
-                      onCanvasSizeChange(size.id)
-                      setIsSizeDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                      currentCanvasSize === size.id
-                        ? 'bg-indigo-600 text-white'
-                        : 'hover:bg-dark-700 text-gray-300'
-                    }`}
-                  >
-                    <span className="text-xl">{size.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-medium">
-                        {size.platform} - {size.name}
-                      </div>
-                      <div className="text-xs opacity-75">
-                        {size.width} × {size.height} px ({size.aspectRatio})
-                      </div>
+            {Object.values(canvasSizes)
+              .filter((size) => size.popular)
+              .map((size) => (
+                <button
+                  key={size.id}
+                  onClick={() => {
+                    onCanvasSizeChange(size.id)
+                    setIsSizeDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                    currentCanvasSize === size.id
+                      ? 'bg-indigo-600/10 text-indigo-400'
+                      : 'hover:bg-dark-800 text-dark-300 hover:text-dark-100'
+                  }`}
+                >
+                  <span className="text-lg">{size.icon}</span>
+                  <div className="flex-1 text-left">
+                    <div className="text-sm font-medium">
+                      {size.platform} {size.name}
                     </div>
-                  </button>
-                ))}
+                    <div className="text-[10px] opacity-60 font-mono">
+                      {size.width}×{size.height}
+                    </div>
+                  </div>
+                </button>
+              ))}
+
+            <div className="h-px bg-dark-800 my-1 mx-2" />
+
+            <div className="text-[10px] font-bold text-dark-500 uppercase tracking-wider px-3 py-2">
+              Others
             </div>
+            {Object.values(canvasSizes)
+              .filter((size) => !size.popular)
+              .map((size) => (
+                <button
+                  key={size.id}
+                  onClick={() => {
+                    onCanvasSizeChange(size.id)
+                    setIsSizeDropdownOpen(false)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                    currentCanvasSize === size.id
+                      ? 'bg-indigo-600/10 text-indigo-400'
+                      : 'hover:bg-dark-800 text-dark-300 hover:text-dark-100'
+                  }`}
+                >
+                  <span className="text-lg opacity-50">{size.icon}</span>
+                  <div className="flex-1 text-left">
+                    <div className="text-sm font-medium">
+                      {size.platform} {size.name}
+                    </div>
+                    <div className="text-[10px] opacity-60 font-mono">
+                      {size.width}×{size.height}
+                    </div>
+                  </div>
+                </button>
+              ))}
           </div>
         )}
       </div>
 
-      {/* Action Buttons */}
+      {/* Right: Actions */}
       <div className="flex items-center gap-2">
         <button
           onClick={handleSaveJSON}
-          className="flex items-center gap-2 px-4 py-2 bg-dark-800 hover:bg-dark-700 text-gray-200 rounded-lg transition-colors border border-dark-600"
-          title="Save as JSON"
+          className="p-2 text-dark-400 hover:text-dark-100 hover:bg-dark-800 rounded-lg transition-all"
+          title="Save Project (JSON)"
         >
           <FileJson size={18} />
-          <span className="hidden sm:inline">Save JSON</span>
         </button>
+
+        <div className="h-4 w-px bg-dark-800 mx-1" />
 
         <button
           onClick={handleDownloadPNG}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
-          title="Download as PNG"
+          className="flex items-center gap-2 px-3 py-1.5 bg-dark-800 hover:bg-dark-700 text-dark-200 hover:text-white rounded-md text-xs font-medium transition-all border border-dark-700"
         >
-          <ImageIcon size={18} />
-          <span className="hidden sm:inline">PNG</span>
+          <ImageIcon size={14} />
+          PNG
         </button>
 
         <button
           onClick={handleDownloadJPG}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
-          title="Download as JPG"
+          className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-xs font-medium transition-all shadow-lg shadow-indigo-500/20"
         >
-          <Download size={18} />
-          <span className="hidden sm:inline">JPG</span>
+          <Download size={14} />
+          Export JPG
         </button>
       </div>
     </header>
