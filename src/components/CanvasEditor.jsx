@@ -37,42 +37,48 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
     // Events for Floating Menu
     const updateMenuPosition = (obj) => {
-      if (!obj || !containerRef.current) return
+      if (!obj || !containerRef.current || !canvasRef.current) return
 
-      const canvasRect = canvasRef.current.getBoundingClientRect()
-      // Fabric object coords are relative to canvas 0,0
-      // We need screen coordinates for the fixed/absolute menu
-      // Actually, since menu is inside container relative, we can use container relative coords
-      // But container centers the canvas with transform or flex.
-      // Let's use simple bounding box logic.
-
-      const bound = obj.getBoundingRect()
-      const zoom = canvas.getZoom()
-
-      // Calculate center top of the object in canvas coords
-      const objCenterX = bound.left + bound.width / 2
-      const objTopY = bound.top
-
-      // Canvas offset in the container?
-      // Since we use flex center, the canvas element is centered.
-      // We can use the canvas DOM element's offset relative to the parent.
-
-      // Let's just use the absolute page coordinates for safety if we used Portal,
-      // but here we are in relative container.
-      // Let's simplify: Menu is absolute in container.
-
-      // Warning: The canvas element is scaled by CSS or Zoom?
-      // Fabric zoom scales the internal drawing, but the canvas element size?
-      // Fabric `setZoom` affects the context scale. `getBoundingRect` returns zoomed coords.
-
-      // We need the offset of the canvas element within the `containerRef` div.
+      // Calculate absolute position on the screen/container
       const canvasEl = canvas.getElement()
-      const canvasOffsetLeft = canvasEl.offsetLeft
-      const canvasOffsetTop = canvasEl.offsetTop
+      // Because the canvas is scaled via CSS (transform) or Zoom, we need the transformed coordinates.
+      // The most reliable way is to get the bounding rect of the object in viewport coordinates,
+      // then subtract the container's bounding rect to get coordinates relative to the container.
+
+      const containerRect = containerRef.current.getBoundingClientRect()
+
+      // Get object center point in canvas coordinates
+      const objCenter = obj.getCenterPoint()
+
+      // Transform canvas coordinates to viewport coordinates
+      // Fabric canvas.getVpCenter() gives viewport center, but we need object position.
+      // We can use canvas.getSelectionElement() or just manual calc.
+      // The canvas zoom level affects the internal coordinate system.
+
+      // The canvas DOM element might also be scaled by CSS (via the parent div flex centering or scale transform?)
+      // In this code, we rely on canvas.setZoom() for fitting, so the canvas DOM element size (width/height attributes) stays large?
+      // No, fitCanvasToContainer sets zoom, but keeps width/height attributes?
+      // Fabric's setWidth/setHeight changes the DOM element size.
+      // fitCanvasToContainer uses setZoom.
+
+      // Let's use Fabric's own coordinate transformation
+      // canvas.vptCoords is the viewport transform.
+      // The canvas offset on screen is needed.
+      const canvasRect = canvasRef.current.getBoundingClientRect()
+
+      // Calculate object center relative to the canvas DOM element
+      // (obj x * zoom) + panX
+      const vpt = canvas.getViewportTransform()
+      const objCanvasX = objCenter.x * vpt[0] + vpt[4]
+      const objCanvasY = objCenter.y * vpt[3] + vpt[5]
+
+      // Now add the canvas's offset relative to the container
+      const relativeLeft = (canvasRect.left - containerRect.left) + objCanvasX
+      const relativeTop = (canvasRect.top - containerRect.top) + objCanvasY
 
       setMenuPosition({
-        left: canvasOffsetLeft + objCenterX,
-        top: canvasOffsetTop + objTopY
+        left: relativeLeft,
+        top: relativeTop
       })
     }
 
@@ -95,29 +101,42 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     }
 
     const handleObjectMoving = (e) => {
-      // Hide menu while dragging to avoid flicker/distraction
+      // Hide menu while dragging
       setMenuVisible(false)
 
-      // Basic Snapping Logic (Simulated Smart Guides)
+      // Improved Snapping Logic
       const obj = e.target
       const w = canvas.width
       const h = canvas.height
       const snapDist = 10
 
-      const centerX = obj.left + (obj.width * obj.scaleX) / 2
-      const centerY = obj.top + (obj.height * obj.scaleY) / 2
+      // Calculate actual center of the object regardless of origin
+      const objCenter = obj.getCenterPoint()
 
-      // Snap to Center
-      if (Math.abs(centerX - w / 2) < snapDist) {
-        obj.set({ left: w / 2 - (obj.width * obj.scaleX) / 2 })
+      let newLeft = obj.left
+      let newTop = obj.top
+
+      // Snap X (Center)
+      if (Math.abs(objCenter.x - w / 2) < snapDist) {
+        // We need to shift the object so its center matches w/2
+        // shift amount = w/2 - currentCenterX
+        const shiftX = w / 2 - objCenter.x
+        newLeft += shiftX
       }
-      if (Math.abs(centerY - h / 2) < snapDist) {
-        obj.set({ top: h / 2 - (obj.height * obj.scaleY) / 2 })
+
+      // Snap Y (Center)
+      if (Math.abs(objCenter.y - h / 2) < snapDist) {
+        const shiftY = h / 2 - objCenter.y
+        newTop += shiftY
+      }
+
+      // Apply changes if snapped
+      if (newLeft !== obj.left || newTop !== obj.top) {
+        obj.set({ left: newLeft, top: newTop })
       }
     }
 
     const handleObjectModified = (e) => {
-       // Show menu again after drag/resize ends
        if(e.target) {
          setSelectedObject(e.target)
          updateMenuPosition(e.target)
@@ -129,11 +148,14 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     canvas.on('selection:updated', handleSelection)
     canvas.on('selection:cleared', handleClearSelection)
     canvas.on('object:moving', handleObjectMoving)
-    canvas.on('object:modified', handleObjectModified) // Covers scaling/rotating too
+    canvas.on('object:modified', handleObjectModified)
 
-    // Handle window resize
     const handleResize = () => {
       fitCanvasToContainer(canvas, canvas.getWidth(), canvas.getHeight())
+      // Also update menu position if visible
+      if (canvas.getActiveObject()) {
+        updateMenuPosition(canvas.getActiveObject())
+      }
     }
 
     window.addEventListener('resize', handleResize)
@@ -150,16 +172,11 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
   useEffect(() => {
     if (!fabricCanvas) return
-    // Update menu position if zoom changes or canvas moves
     if (selectedObject && menuVisible) {
-        // Force re-calc position?
-        // Ideally we'd trigger the update logic again but it's complex.
-        // Hiding menu on zoom is safer.
         setMenuVisible(false)
     }
   }, [zoom])
 
-  // Canvas Size Update
   useEffect(() => {
     if (!fabricCanvas) return
     fabricCanvas.setWidth(canvasWidth)
@@ -187,7 +204,6 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     canvas.renderAll()
   }
 
-  // Action Handlers
   const handleZoomIn = () => {
     if (!fabricCanvas) return
     const newZoom = Math.min(zoom + 0.1, 2)
@@ -209,7 +225,6 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
     fitCanvasToContainer(fabricCanvas, canvasWidth, canvasHeight)
   }
 
-  // Floating Menu Actions
   const handleDelete = () => {
     if (!fabricCanvas || !selectedObject) return
     fabricCanvas.remove(selectedObject)
@@ -248,7 +263,6 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
       ref={containerRef}
       className="flex-1 flex flex-col items-center justify-center bg-dark-900 relative overflow-hidden"
     >
-      {/* Floating Menu - Rendered inside container but absolute positioned */}
       <FloatingMenu
         visible={menuVisible}
         position={menuPosition}
@@ -258,12 +272,10 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
         onSendBackward={handleSendBackward}
       />
 
-      {/* Canvas Container */}
       <div className="relative flex items-center justify-center transition-transform duration-200 ease-out">
         <canvas ref={canvasRef} className="shadow-2xl rounded-sm" />
       </div>
 
-      {/* Zoom Controls */}
       <div className="absolute bottom-6 right-6 flex flex-col gap-2 bg-dark-800/80 backdrop-blur-sm rounded-lg p-1.5 shadow-lg border border-dark-700/50">
         <button
           onClick={handleZoomIn}
@@ -292,7 +304,6 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
         </div>
       </div>
 
-      {/* Canvas Info */}
       <div className="absolute top-4 left-4 bg-dark-800/80 backdrop-blur-sm rounded-md px-3 py-1.5 text-xs text-dark-400 border border-dark-700/50 font-mono flex items-center gap-2">
         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
         {canvasWidth} × {canvasHeight}
