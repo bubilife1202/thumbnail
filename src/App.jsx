@@ -104,60 +104,86 @@ function App() {
 
   const currentSize = canvasSizes[currentCanvasSize]
 
-  return (
-    <div className="flex flex-col h-screen bg-dark-950 text-dark-100 selection:bg-indigo-500/30">
-      {/* Header */}
-      <Header
-        projectName={projectName}
-        setProjectName={setProjectName}
-        canvas={canvas}
-        currentCanvasSize={currentCanvasSize}
-        onCanvasSizeChange={handleCanvasSizeChange}
-      />
+  const railCardClass = 'h-full bg-dark-900/90 border border-dark-800/60 rounded-2xl overflow-hidden shadow-2xl shadow-black/30'
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Toolbar */}
-        <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} currentCanvasSize={currentCanvasSize} />
-
-        {/* Canvas Area with specialized background for contrast */}
-        <main className="flex-1 relative bg-black/40 shadow-inner flex flex-col min-w-0">
-          <CanvasEditor
-            onCanvasReady={handleCanvasReady}
-            canvasWidth={currentSize.width}
-            canvasHeight={currentSize.height}
-          />
-        </main>
-
-        {/* Right Property Panel */}
-        <PropertyPanel
-          canvas={canvas}
-          selectedObject={selectedObject}
-        />
+  const footer = (
+    <footer className="px-4 py-1.5 flex justify-between items-center text-[10px] text-dark-500 select-none">
+      <div className="flex items-center gap-2">
+        <div className="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
+        <span>Ready</span>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-dark-950 border-t border-dark-800/50 px-4 py-1.5 flex justify-between items-center text-[10px] text-dark-500 select-none">
-        <div className="flex items-center gap-2">
-           <div className="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
-           <span>Ready</span>
-        </div>
+      <div className="flex items-center gap-1">
+        Made with ❤️ by{' '}
+        <a
+          href="https://reelscode.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
+        >
+          Reelscode
+        </a>
+        <span className="text-dark-700 mx-1">|</span>
+        <span>v2.2.0 Professional</span>
+      </div>
+    </footer>
+  )
 
-        <div className="flex items-center gap-1">
-          Made with ❤️ by{' '}
-          <a
-            href="https://reelscode.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium"
-          >
-            Reelscode
-          </a>
-          <span className="text-dark-700 mx-1">|</span>
-          <span>v2.2.0 Professional</span>
+  return (
+    <TemplateShell
+      header={(
+        <Header
+          projectName={projectName}
+          setProjectName={setProjectName}
+          canvas={canvas}
+          currentCanvasSize={currentCanvasSize}
+          onCanvasSizeChange={handleCanvasSizeChange}
+        />
+      )}
+      leftRail={(
+        <div className={`${railCardClass} flex`}>
+          <Toolbar canvas={canvas} onLoadTemplate={handleLoadTemplate} currentCanvasSize={currentCanvasSize} />
         </div>
-      </footer>
-    </div>
+      )}
+      main={(
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-dark-800/60">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_0_6px_rgba(79,70,229,0.15)]" />
+              <div className="flex flex-col">
+                <span className="text-xs text-dark-400">캔버스 크기</span>
+                <span className="text-sm font-semibold text-white leading-tight">
+                  {currentSize.platform} · {currentSize.name} ({currentSize.width}×{currentSize.height})
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] text-dark-500">
+              <span className="px-2 py-1 rounded-full bg-indigo-500/10 text-indigo-200 border border-indigo-500/30">
+                auto fit on load
+              </span>
+              <span className="hidden sm:inline">템플릿 로드시 자동 맞춤 & 선택 해제</span>
+            </div>
+          </div>
+
+          <div className="flex-1 relative flex flex-col min-w-0">
+            <CanvasEditor
+              onCanvasReady={handleCanvasReady}
+              canvasWidth={currentSize.width}
+              canvasHeight={currentSize.height}
+            />
+          </div>
+        </div>
+      )}
+      rightRail={(
+        <div className={`${railCardClass} bg-dark-900/95`}>
+          <PropertyPanel
+            canvas={canvas}
+            selectedObject={selectedObject}
+          />
+        </div>
+      )}
+      footer={footer}
+    />
   )
 }
 
