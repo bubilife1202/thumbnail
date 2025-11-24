@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Trash2, Copy, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from 'lucide-react'
+import { Trash2, Copy, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon, Sparkles, Sliders, Type, Layers } from 'lucide-react'
 import * as fabric from 'fabric'
 import { FabricImage } from 'fabric'
 
@@ -58,40 +58,25 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
     if (!selectedObject || selectedObject.type !== 'textbox') return
 
     setTextPreset(preset)
-
-    switch (preset) {
+    // Preset logic remains same...
+     switch (preset) {
       case 'youtube':
-        // YouTube style: Bold white text with thick black outline and shadow
         updateProperty('fontSize', 72)
         updateProperty('fontWeight', 900)
         updateProperty('fill', '#ffffff')
         updateProperty('stroke', '#000000')
         updateProperty('strokeWidth', 6)
-        selectedObject.set('shadow', {
-          color: 'rgba(0, 0, 0, 0.6)',
-          blur: 10,
-          offsetX: 4,
-          offsetY: 4,
-        })
+        selectedObject.set('shadow', { color: 'rgba(0, 0, 0, 0.6)', blur: 10, offsetX: 4, offsetY: 4 })
         break
-
       case 'neon':
-        // Neon glow effect
         updateProperty('fontSize', 64)
         updateProperty('fontWeight', 700)
         updateProperty('fill', '#ff00ff')
         updateProperty('stroke', '#00ffff')
         updateProperty('strokeWidth', 2)
-        selectedObject.set('shadow', {
-          color: '#ff00ff',
-          blur: 20,
-          offsetX: 0,
-          offsetY: 0,
-        })
+        selectedObject.set('shadow', { color: '#ff00ff', blur: 20, offsetX: 0, offsetY: 0 })
         break
-
       case 'minimal':
-        // Clean minimal style
         updateProperty('fontSize', 48)
         updateProperty('fontWeight', 400)
         updateProperty('fill', '#333333')
@@ -99,9 +84,7 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
         updateProperty('strokeWidth', 0)
         selectedObject.set('shadow', null)
         break
-
       case 'outline':
-        // Outline only
         updateProperty('fontSize', 56)
         updateProperty('fontWeight', 700)
         updateProperty('fill', '')
@@ -109,11 +92,9 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
         updateProperty('strokeWidth', 4)
         selectedObject.set('shadow', null)
         break
-
       default:
         break
     }
-
     canvas.renderAll()
   }
 
@@ -121,17 +102,13 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
     if (!selectedObject || !canvas) return
     if (selectedObject.type !== 'image') return
 
-    // Get existing filters or empty array
     const currentFilters = selectedObject.filters || []
-
-    // Remove existing filter of this type
     const filteredFilters = currentFilters.filter(f => {
       if (filterType === 'Brightness') return !(f instanceof fabric.filters.Brightness)
       if (filterType === 'Contrast') return !(f instanceof fabric.filters.Contrast)
       return true
     })
 
-    // Add new filter if value is not 0
     if (filterType === 'Brightness' && value !== 0) {
       filteredFilters.push(new fabric.filters.Brightness({ brightness: value }))
     } else if (filterType === 'Contrast' && value !== 0) {
@@ -141,7 +118,6 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
     selectedObject.filters = filteredFilters
     selectedObject.applyFilters()
     canvas.renderAll()
-
     setProperties({ ...properties, [filterType.toLowerCase()]: value })
   }
 
@@ -152,7 +128,6 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
 
   const handleImageFileChange = (e) => {
     if (!canvas || !selectedObject || selectedObject.type !== 'image') return
-
     const file = e.target.files[0]
     if (!file) return
 
@@ -160,27 +135,9 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
     reader.onload = (event) => {
       const imgElement = new Image()
       imgElement.src = event.target.result
-
       imgElement.onload = () => {
-        // Store current properties
-        const left = selectedObject.left
-        const top = selectedObject.top
-        const scaleX = selectedObject.scaleX
-        const scaleY = selectedObject.scaleY
-        const angle = selectedObject.angle
-        const filters = selectedObject.filters
-
-        // Create new image with same position and scale
-        const newImage = new FabricImage(imgElement, {
-          left,
-          top,
-          scaleX,
-          scaleY,
-          angle,
-          filters,
-        })
-
-        // Remove old image and add new one
+        const { left, top, scaleX, scaleY, angle, filters } = selectedObject
+        const newImage = new FabricImage(imgElement, { left, top, scaleX, scaleY, angle, filters })
         canvas.remove(selectedObject)
         canvas.add(newImage)
         canvas.setActiveObject(newImage)
@@ -188,20 +145,19 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
       }
     }
     reader.readAsDataURL(file)
-
-    // Reset input
     e.target.value = ''
   }
 
   if (!selectedObject) {
     return (
-      <aside className="w-80 bg-dark-900 border-l border-dark-700 p-6 overflow-y-auto">
-        <div className="text-center text-gray-500 mt-10">
-          <p className="text-sm">객체를 선택하세요</p>
-          <p className="text-xs mt-2 text-gray-600">
-            선택한 객체의 속성을<br />이곳에서 편집할 수 있습니다
-          </p>
+      <aside className="w-80 bg-dark-900 border-l border-dark-700/50 flex flex-col items-center justify-center p-8 text-center select-none">
+        <div className="w-20 h-20 bg-dark-800 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <Layers size={40} className="text-dark-600" />
         </div>
+        <h3 className="text-lg font-bold text-dark-300 mb-2">No Selection</h3>
+        <p className="text-sm text-dark-500 leading-relaxed max-w-[200px]">
+          Click on an object in the canvas to edit its properties
+        </p>
       </aside>
     )
   }
@@ -209,84 +165,74 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
   const isText = selectedObject.type === 'textbox'
   const isImage = selectedObject.type === 'image'
 
-  return (
-    <aside className="w-80 bg-dark-900 border-l border-dark-700 p-6 overflow-y-auto">
-      <h2 className="text-lg font-semibold text-gray-200 mb-4">속성</h2>
+  const PropertySection = ({ title, icon: Icon, children }) => (
+    <div className="mb-6 p-4 bg-dark-800/40 rounded-xl border border-dark-700/50 backdrop-blur-sm">
+      <div className="flex items-center gap-2 mb-4 text-xs font-bold text-dark-400 uppercase tracking-wider">
+        {Icon && <Icon size={14} />}
+        {title}
+      </div>
+      <div className="space-y-4">
+        {children}
+      </div>
+    </div>
+  )
 
-      {/* Object Type Badge */}
-      <div className="bg-dark-800 rounded-lg p-3 mb-4 border border-dark-700">
-        <p className="text-xs text-gray-500">선택된 객체</p>
-        <p className="text-sm text-gray-300 font-medium capitalize mt-1">
-          {selectedObject.type === 'textbox' ? '텍스트' :
-           selectedObject.type === 'rect' ? '사각형' :
-           selectedObject.type === 'circle' ? '원' :
-           selectedObject.type === 'triangle' ? '삼각형' :
-           selectedObject.type === 'image' ? '이미지' : selectedObject.type}
-        </p>
+  const Label = ({ children }) => (
+    <label className="block text-xs font-medium text-dark-300 mb-2">
+      {children}
+    </label>
+  )
+
+  return (
+    <aside className="w-80 bg-dark-900 border-l border-dark-700/50 p-4 overflow-y-auto custom-scrollbar select-none">
+      <div className="flex items-center justify-between mb-6 px-1">
+        <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+          <Sliders size={16} className="text-indigo-400" />
+          PROPERTIES
+        </h2>
+        <span className="text-[10px] font-mono bg-dark-800 text-dark-400 px-2 py-1 rounded capitalize border border-dark-700">
+          {selectedObject.type}
+        </span>
       </div>
 
-      {/* Text Presets (only for text objects) */}
+      {/* Text Presets */}
       {isText && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            텍스트 프리셋
-          </label>
+        <PropertySection title="Quick Styles" icon={Sparkles}>
           <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => applyTextPreset('youtube')}
-              className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
-                textPreset === 'youtube'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-              }`}
-            >
-              YouTube
-            </button>
-            <button
-              onClick={() => applyTextPreset('neon')}
-              className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
-                textPreset === 'neon'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-              }`}
-            >
-              Neon
-            </button>
-            <button
-              onClick={() => applyTextPreset('minimal')}
-              className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
-                textPreset === 'minimal'
-                  ? 'bg-gray-600 text-white'
-                  : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-              }`}
-            >
-              Minimal
-            </button>
-            <button
-              onClick={() => applyTextPreset('outline')}
-              className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
-                textPreset === 'outline'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-              }`}
-            >
-              Outline
-            </button>
+             {[
+               { id: 'youtube', label: 'YouTube', color: 'bg-red-500' },
+               { id: 'neon', label: 'Neon', color: 'bg-purple-500' },
+               { id: 'minimal', label: 'Minimal', color: 'bg-zinc-500' },
+               { id: 'outline', label: 'Outline', color: 'bg-indigo-500' }
+             ].map(preset => (
+               <button
+                key={preset.id}
+                onClick={() => applyTextPreset(preset.id)}
+                className={`px-3 py-2.5 rounded-lg text-xs font-medium transition-all border ${
+                  textPreset === preset.id
+                    ? 'bg-dark-700 border-indigo-500 text-white shadow-lg shadow-indigo-500/10'
+                    : 'bg-dark-800 border-transparent hover:bg-dark-700 text-dark-300 hover:text-dark-100'
+                }`}
+               >
+                 <div className="flex items-center gap-2">
+                   <div className={`w-2 h-2 rounded-full ${preset.color}`} />
+                   {preset.label}
+                 </div>
+               </button>
+             ))}
           </div>
-        </div>
+        </PropertySection>
       )}
 
-      {/* Text Properties */}
+      {/* Typography */}
       {isText && (
-        <>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              폰트
-            </label>
+        <PropertySection title="Typography" icon={Type}>
+          <div>
+            <Label>Font Family</Label>
             <select
               value={properties.fontFamily || 'Noto Sans KR, sans-serif'}
               onChange={(e) => updateProperty('fontFamily', e.target.value)}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full bg-dark-900 border border-dark-700 text-dark-200 rounded-lg px-3 py-2.5 text-xs focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
             >
               <option value="Noto Sans KR, sans-serif">Noto Sans KR</option>
               <option value="Black Han Sans, sans-serif">Black Han Sans</option>
@@ -297,10 +243,11 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
             </select>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              폰트 크기
-            </label>
+          <div>
+            <div className="flex justify-between mb-2">
+              <Label>Size</Label>
+              <span className="text-[10px] text-dark-400 font-mono">{properties.fontSize}px</span>
+            </div>
             <input
               type="range"
               min="12"
@@ -309,47 +256,34 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
               onChange={(e) => updateProperty('fontSize', parseInt(e.target.value))}
               className="w-full"
             />
-            <div className="text-xs text-gray-500 mt-1">{properties.fontSize}px</div>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              정렬
-            </label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => updateProperty('textAlign', 'left')}
-                className={`flex-1 p-2 rounded ${
-                  properties.textAlign === 'left' ? 'bg-indigo-600' : 'bg-dark-800 hover:bg-dark-700'
-                }`}
-              >
-                <AlignLeft size={16} className="mx-auto" />
-              </button>
-              <button
-                onClick={() => updateProperty('textAlign', 'center')}
-                className={`flex-1 p-2 rounded ${
-                  properties.textAlign === 'center' ? 'bg-indigo-600' : 'bg-dark-800 hover:bg-dark-700'
-                }`}
-              >
-                <AlignCenter size={16} className="mx-auto" />
-              </button>
-              <button
-                onClick={() => updateProperty('textAlign', 'right')}
-                className={`flex-1 p-2 rounded ${
-                  properties.textAlign === 'right' ? 'bg-indigo-600' : 'bg-dark-800 hover:bg-dark-700'
-                }`}
-              >
-                <AlignRight size={16} className="mx-auto" />
-              </button>
+          <div>
+            <Label>Alignment</Label>
+            <div className="flex bg-dark-900 p-1 rounded-lg border border-dark-700">
+              {['left', 'center', 'right'].map((align) => (
+                <button
+                  key={align}
+                  onClick={() => updateProperty('textAlign', align)}
+                  className={`flex-1 py-1.5 rounded-md transition-all ${
+                    properties.textAlign === align
+                      ? 'bg-dark-700 text-white shadow-sm'
+                      : 'text-dark-500 hover:text-dark-300'
+                  }`}
+                >
+                  {align === 'left' && <AlignLeft size={16} className="mx-auto" />}
+                  {align === 'center' && <AlignCenter size={16} className="mx-auto" />}
+                  {align === 'right' && <AlignRight size={16} className="mx-auto" />}
+                </button>
+              ))}
             </div>
           </div>
-        </>
+        </PropertySection>
       )}
 
-      {/* Image Filters */}
+      {/* Image Controls */}
       {isImage && (
-        <>
-          {/* Hidden file input */}
+        <PropertySection title="Image Adjustments" icon={ImageIcon}>
           <input
             ref={imageInputRef}
             type="file"
@@ -358,21 +292,19 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
             className="hidden"
           />
 
-          {/* Replace Image Button */}
-          <div className="mb-4">
-            <button
-              onClick={handleReplaceImage}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
-            >
-              <ImageIcon size={18} />
-              이미지 교체
-            </button>
-          </div>
+          <button
+            onClick={handleReplaceImage}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-dark-700 hover:bg-dark-600 text-dark-100 rounded-lg text-xs font-medium transition-all mb-4 border border-dark-600 hover:border-dark-500"
+          >
+            <ImageIcon size={14} />
+            Replace Image
+          </button>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              밝기
-            </label>
+          <div>
+            <div className="flex justify-between mb-2">
+              <Label>Brightness</Label>
+              <span className="text-[10px] text-dark-400 font-mono">{Math.round((properties.brightness || 0) * 100)}%</span>
+            </div>
             <input
               type="range"
               min="-1"
@@ -382,15 +314,13 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
               onChange={(e) => updateImageFilter('Brightness', parseFloat(e.target.value))}
               className="w-full"
             />
-            <div className="text-xs text-gray-500 mt-1">
-              {Math.round((properties.brightness || 0) * 100)}%
-            </div>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              대비
-            </label>
+          <div>
+            <div className="flex justify-between mb-2">
+              <Label>Contrast</Label>
+              <span className="text-[10px] text-dark-400 font-mono">{Math.round((properties.contrast || 0) * 100)}%</span>
+            </div>
             <input
               type="range"
               min="-1"
@@ -400,86 +330,89 @@ const PropertyPanel = ({ canvas, selectedObject }) => {
               onChange={(e) => updateImageFilter('Contrast', parseFloat(e.target.value))}
               className="w-full"
             />
-            <div className="text-xs text-gray-500 mt-1">
-              {Math.round((properties.contrast || 0) * 100)}%
-            </div>
           </div>
-        </>
+        </PropertySection>
       )}
 
-      {/* Common Properties */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          채우기 색상
-        </label>
-        <input
-          type="color"
-          value={properties.fill || '#000000'}
-          onChange={(e) => updateProperty('fill', e.target.value)}
-          className="w-full h-10 rounded cursor-pointer"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          테두리 색상
-        </label>
-        <input
-          type="color"
-          value={properties.stroke || '#000000'}
-          onChange={(e) => updateProperty('stroke', e.target.value)}
-          className="w-full h-10 rounded cursor-pointer"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          테두리 두께
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="20"
-          value={properties.strokeWidth || 0}
-          onChange={(e) => updateProperty('strokeWidth', parseInt(e.target.value))}
-          className="w-full"
-        />
-        <div className="text-xs text-gray-500 mt-1">{properties.strokeWidth}px</div>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          투명도
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={properties.opacity || 1}
-          onChange={(e) => updateProperty('opacity', parseFloat(e.target.value))}
-          className="w-full"
-        />
-        <div className="text-xs text-gray-500 mt-1">
-          {Math.round((properties.opacity || 1) * 100)}%
+      {/* Appearance */}
+      <PropertySection title="Appearance" icon={Palette}>
+        <div>
+          <Label>Fill Color</Label>
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-dark-600 shadow-sm ring-2 ring-dark-800 hover:ring-indigo-500 transition-all cursor-pointer">
+              <input
+                type="color"
+                value={properties.fill || '#000000'}
+                onChange={(e) => updateProperty('fill', e.target.value)}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+              />
+            </div>
+            <span className="text-xs font-mono text-dark-400 uppercase">{properties.fill}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 mt-6">
+        <div>
+          <Label>Stroke Color</Label>
+          <div className="flex items-center gap-3">
+             <div className="relative w-10 h-10 rounded-full overflow-hidden border border-dark-600 shadow-sm ring-2 ring-dark-800 hover:ring-indigo-500 transition-all cursor-pointer">
+              <input
+                type="color"
+                value={properties.stroke || '#000000'}
+                onChange={(e) => updateProperty('stroke', e.target.value)}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 border-0 cursor-pointer"
+              />
+            </div>
+            <span className="text-xs font-mono text-dark-400 uppercase">{properties.stroke}</span>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between mb-2">
+            <Label>Stroke Width</Label>
+            <span className="text-[10px] text-dark-400 font-mono">{properties.strokeWidth}px</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            value={properties.strokeWidth || 0}
+            onChange={(e) => updateProperty('strokeWidth', parseInt(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        <div>
+           <div className="flex justify-between mb-2">
+            <Label>Opacity</Label>
+            <span className="text-[10px] text-dark-400 font-mono">{Math.round((properties.opacity || 1) * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={properties.opacity || 1}
+            onChange={(e) => updateProperty('opacity', parseFloat(e.target.value))}
+            className="w-full"
+          />
+        </div>
+      </PropertySection>
+
+      {/* Actions */}
+      <div className="flex gap-2 mt-8 mb-4">
         <button
           onClick={duplicateObject}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-dark-800 hover:bg-dark-700 rounded text-sm transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-dark-800 hover:bg-dark-700 text-dark-200 rounded-xl text-xs font-bold transition-all border border-dark-700 hover:border-dark-600"
         >
-          <Copy size={16} />
-          복제
+          <Copy size={14} />
+          DUPLICATE
         </button>
         <button
           onClick={deleteObject}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded text-sm transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl text-xs font-bold transition-all border border-red-500/20 hover:border-red-500/30"
         >
-          <Trash2 size={16} />
-          삭제
+          <Trash2 size={14} />
+          DELETE
         </button>
       </div>
     </aside>
