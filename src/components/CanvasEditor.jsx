@@ -2,8 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Canvas } from 'fabric'
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 import FloatingMenu from './FloatingMenu'
+import CanvasOverlay from './CanvasOverlay'
+import { getSnapPoints, getSafeZoneMask } from '../utils/layoutGrids'
 
-const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 }) => {
+const CanvasEditor = ({
+  onCanvasReady,
+  canvasWidth = 1280,
+  canvasHeight = 720,
+  overlayOptions = { gridType: 'ruleOfThirds', showGrid: true, showSafeZone: true },
+}) => {
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
   const [fabricCanvas, setFabricCanvas] = useState(null)
@@ -108,13 +115,23 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
       const obj = e.target
       const w = canvas.width
       const h = canvas.height
-      const snapDist = 10
+      const snapDist = 12
 
       // Calculate actual center of the object regardless of origin
       const objCenter = obj.getCenterPoint()
 
       let newLeft = obj.left
       let newTop = obj.top
+
+      const snapPoints = getSnapPoints(w, h, overlayOptions.gridType)
+      snapPoints.forEach((pt) => {
+        if (Math.abs(objCenter.x - pt.x) < snapDist) {
+          newLeft += pt.x - objCenter.x
+        }
+        if (Math.abs(objCenter.y - pt.y) < snapDist) {
+          newTop += pt.y - objCenter.y
+        }
+      })
 
       // Snap X (Center)
       if (Math.abs(objCenter.x - w / 2) < snapDist) {
@@ -128,6 +145,16 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
       if (Math.abs(objCenter.y - h / 2) < snapDist) {
         const shiftY = h / 2 - objCenter.y
         newTop += shiftY
+      }
+
+      if (overlayOptions.showSafeZone) {
+        const safe = getSafeZoneMask(w, h)
+        const halfW = obj.getScaledWidth() / 2
+        const halfH = obj.getScaledHeight() / 2
+        const clampedX = Math.min(Math.max(objCenter.x, safe.x + halfW), safe.x + safe.width - halfW)
+        const clampedY = Math.min(Math.max(objCenter.y, safe.y + halfH), safe.y + safe.height - halfH)
+        newLeft += clampedX - objCenter.x
+        newTop += clampedY - objCenter.y
       }
 
       // Apply changes if snapped
@@ -274,6 +301,15 @@ const CanvasEditor = ({ onCanvasReady, canvasWidth = 1280, canvasHeight = 720 })
 
       <div className="relative flex items-center justify-center transition-transform duration-200 ease-out">
         <canvas ref={canvasRef} className="shadow-2xl rounded-sm" />
+        <CanvasOverlay
+          width={canvasWidth}
+          height={canvasHeight}
+          gridType={overlayOptions.gridType}
+          showGrid={overlayOptions.showGrid}
+          showSafeZone={overlayOptions.showSafeZone}
+          onToggleGrid={overlayOptions.onToggleGrid}
+          onToggleSafeZone={overlayOptions.onToggleSafeZone}
+        />
       </div>
 
       <div className="absolute bottom-6 right-6 flex flex-col gap-2 bg-dark-800/80 backdrop-blur-sm rounded-lg p-1.5 shadow-lg border border-dark-700/50">
